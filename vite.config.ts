@@ -5,14 +5,15 @@ import { tempo } from "tempo-devtools/dist/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: process.env.NODE_ENV === "development" ? "/" : process.env.VITE_BASE_PATH || "/",
+  // Use Netlify's BASE_URL environment variable if available, otherwise use VITE_BASE_PATH or default to "/"
+  base:
+    process.env.NODE_ENV === "development"
+      ? "/"
+      : process.env.BASE_URL || process.env.VITE_BASE_PATH || "/",
   optimizeDeps: {
     entries: ["src/main.tsx", "src/tempobook/**/*"],
   },
-  plugins: [
-    react(),
-    tempo(),
-  ],
+  plugins: [react(), tempo()],
   resolve: {
     preserveSymlinks: true,
     alias: {
@@ -22,5 +23,5 @@ export default defineConfig({
   server: {
     // @ts-ignore
     allowedHosts: true,
-  }
+  },
 });
