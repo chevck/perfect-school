@@ -25,16 +25,26 @@ interface ExaminationDetails {
 
 const SetQuestionsPage = () => {
   // In a real application, you would fetch this data based on the examination ID from the URL
-  const [examinationDetails] = useState<ExaminationDetails>({
-    id: "1",
-    subject: "Mathematics",
-    class: "Grade 10",
-    term: "First Term",
-    totalMarks: 100,
-    session: "2023/2024",
+  const [examinationDetails] = useState<ExaminationDetails>(() => {
+    // Try to load from localStorage first
+    const savedDetails = localStorage.getItem(`exam-${"1"}-details`);
+    return savedDetails
+      ? JSON.parse(savedDetails)
+      : {
+          id: "1",
+          subject: "Mathematics",
+          class: "Grade 10",
+          term: "First Term",
+          totalMarks: 100,
+          session: "2023/2024",
+        };
   });
 
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<Question[]>(() => {
+    // Load questions from localStorage if available
+    const savedQuestions = localStorage.getItem(`exam-${"1"}-questions`);
+    return savedQuestions ? JSON.parse(savedQuestions) : [];
+  });
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -86,9 +96,26 @@ const SetQuestionsPage = () => {
       setQuestions(updatedQuestions);
       setIsEditing(false);
       setEditIndex(null);
+      setCurrentQuestion(null);
     } else {
       setQuestions([...questions, newQuestion]);
+      // Set the current question to the newly added question
+      setCurrentQuestion(newQuestion);
     }
+
+    // Save to localStorage for persistence
+    localStorage.setItem(
+      `exam-${examinationDetails.id}-questions`,
+      JSON.stringify(
+        isEditing && editIndex !== null
+          ? [
+              ...questions.slice(0, editIndex),
+              newQuestion,
+              ...questions.slice(editIndex + 1),
+            ]
+          : [...questions, newQuestion],
+      ),
+    );
 
     reset();
   };
@@ -109,6 +136,20 @@ const SetQuestionsPage = () => {
   const handleDeleteQuestion = (index: number) => {
     const updatedQuestions = questions.filter((_, i) => i !== index);
     setQuestions(updatedQuestions);
+
+    // Save updated questions to localStorage
+    localStorage.setItem(
+      `exam-${examinationDetails.id}-questions`,
+      JSON.stringify(updatedQuestions),
+    );
+
+    // If currently editing this question, reset the form
+    if (isEditing && editIndex === index) {
+      setIsEditing(false);
+      setEditIndex(null);
+      setCurrentQuestion(null);
+      reset();
+    }
   };
 
   const calculateTotalMarks = () => {
@@ -125,9 +166,21 @@ const SetQuestionsPage = () => {
           className="bg-green-600 hover:bg-green-700"
           onClick={() => {
             // In a real application, you would save the questions to the backend
+            // For now, we're just using localStorage
+            localStorage.setItem(
+              `exam-${examinationDetails.id}-questions`,
+              JSON.stringify(questions),
+            );
+            localStorage.setItem(
+              `exam-${examinationDetails.id}-details`,
+              JSON.stringify(examinationDetails),
+            );
+
+            // Show success message
             alert("Examination questions saved successfully!");
-            // Then redirect to the examinations page
-            window.location.href = "/examinations";
+
+            // In a real app, we would redirect to the examinations page
+            // window.location.href = "/examinations";
           }}
         >
           Save Examination
