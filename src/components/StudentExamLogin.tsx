@@ -51,6 +51,7 @@ const StudentExamLogin = () => {
       if (!savedDetails) {
         throw new Error("Examination not found");
       }
+      navigate(`/take-exam/${id}/questions`);
 
       const examData = JSON.parse(savedDetails);
       const students = examData.students || [];
