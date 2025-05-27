@@ -121,16 +121,16 @@ const StudentExamView = () => {
     setShowFeedback(true);
 
     // Move to next question after delay
-    // setTimeout(() => {
-    //   setShowFeedback(false);
-    //   setSelectedOption(null);
+    setTimeout(() => {
+      setShowFeedback(false);
+      setSelectedOption(null);
 
-    //   if (currentQuestionIndex < questions.length - 1) {
-    //     setCurrentQuestionIndex(currentQuestionIndex + 1);
-    //   } else {
-    //     setShowResult(true);
-    //   }
-    // }, 1500);
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      } else {
+        setShowResult(true);
+      }
+    }, 1500);
   };
 
   const handleSubmitExam = () => {
