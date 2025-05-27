@@ -70,13 +70,119 @@ const Dashboard = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-medium text-sm">JD</span>
+            <div className="relative group">
+              <div className="flex items-center gap-2 cursor-pointer">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 font-medium text-sm">JD</span>
+                </div>
+                <span className="text-sm font-medium hidden sm:inline">
+                  John Doe
+                </span>
+                <svg
+                  className="w-4 h-4 text-gray-500 hidden sm:block"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
               </div>
-              <span className="text-sm font-medium hidden sm:inline">
-                John Doe
-              </span>
+
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 invisible group-hover:visible z-50">
+                <div className="p-2">
+                  <div className="text-xs font-medium text-gray-500 px-3 py-1">
+                    ACCOUNTS
+                  </div>
+
+                  <div className="mt-1 space-y-1">
+                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md bg-blue-50 text-blue-600">
+                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-blue-600 font-medium text-xs">
+                          JD
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">John Doe</p>
+                        <p className="text-xs text-gray-500">Administrator</p>
+                      </div>
+                    </button>
+
+                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100">
+                      <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-green-600 font-medium text-xs">
+                          JS
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">Jane Smith</p>
+                        <p className="text-xs text-gray-500">Teacher</p>
+                      </div>
+                    </button>
+
+                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100">
+                      <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-purple-600 font-medium text-xs">
+                          RJ
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">Robert Johnson</p>
+                        <p className="text-xs text-gray-500">Finance Officer</p>
+                      </div>
+                    </button>
+                  </div>
+
+                  <div className="border-t border-gray-200 mt-2 pt-2">
+                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 text-blue-600">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        ></path>
+                      </svg>
+                      Add Account
+                    </button>
+
+                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 text-gray-700">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                        ></path>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        ></path>
+                      </svg>
+                      Manage Accounts
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

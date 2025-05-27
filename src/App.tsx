@@ -6,6 +6,8 @@ import RegistrationForm from "./components/RegistrationForm";
 import Dashboard from "./components/Dashboard";
 import SetQuestionsPage from "./components/SetQuestionsPage";
 import ExaminationViewPage from "./components/ExaminationViewPage";
+import StudentExamLogin from "./components/StudentExamLogin";
+import StudentExamView from "./components/StudentExamView";
 import routes from "tempo-routes";
 
 function App() {
@@ -19,6 +21,11 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/set-questions/:id" element={<SetQuestionsPage />} />
           <Route path="/examination/:id" element={<ExaminationViewPage />} />
+          <Route path="/take-exam/:id" element={<StudentExamLogin />} />
+          <Route
+            path="/take-exam/:id/questions"
+            element={<StudentExamView />}
+          />
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" />
           )}
