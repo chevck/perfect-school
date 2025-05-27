@@ -284,6 +284,9 @@ const ExaminationsPage = () => {
                         variant="outline"
                         size="sm"
                         className="text-gray-600 hover:text-gray-800"
+                        onClick={() => {
+                          window.location.href = `/examination/${exam.id}`;
+                        }}
                       >
                         View
                       </Button>
