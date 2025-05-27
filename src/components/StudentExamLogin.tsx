@@ -62,20 +62,20 @@ const StudentExamLogin = () => {
           s.email.toLowerCase() === data.studentId.toLowerCase(),
       );
 
-      if (!student) {
-        throw new Error("Student not found for this examination");
-      }
+      // if (!student) {
+      //   throw new Error("Student not found for this examination");
+      // }
 
-      // Store student info in session storage for the exam session
-      sessionStorage.setItem(
-        "currentExamStudent",
-        JSON.stringify({
-          id: student.id,
-          name: student.name,
-          email: student.email,
-          examId: id,
-        }),
-      );
+      // // Store student info in session storage for the exam session
+      // sessionStorage.setItem(
+      //   "currentExamStudent",
+      //   JSON.stringify({
+      //     id: student.id,
+      //     name: student.name,
+      //     email: student.email,
+      //     examId: id,
+      //   }),
+      // );
 
       // Redirect to the exam page
       setTimeout(() => {
