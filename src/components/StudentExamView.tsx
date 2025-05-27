@@ -38,11 +38,11 @@ const StudentExamView = () => {
   useEffect(() => {
     // Check if student is authenticated
     const storedStudentInfo = sessionStorage.getItem("currentExamStudent");
-    if (!storedStudentInfo) {
-      // Redirect to login if not authenticated
-      navigate(`/take-exam/${id}`);
-      return;
-    }
+    // if (!storedStudentInfo) {
+    //   // Redirect to login if not authenticated
+    //   navigate(`/take-exam/${id}`);
+    //   return;
+    // }
 
     setStudentInfo(JSON.parse(storedStudentInfo));
 
