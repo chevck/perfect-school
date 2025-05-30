@@ -171,8 +171,12 @@ const LoginForm = () => {
                   Password
                 </label>
                 <a
-                  href="#"
+                  href="/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-800"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate("/forgot-password");
+                  }}
                 >
                   Forgot password?
                 </a>

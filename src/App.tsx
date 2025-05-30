@@ -3,6 +3,8 @@ import { useRoutes, Routes, Route } from "react-router-dom";
 import Home from "./components/home";
 import LoginForm from "./components/LoginForm";
 import RegistrationForm from "./components/RegistrationForm";
+import ForgotPasswordForm from "./components/ForgotPasswordForm";
+import ResetPasswordForm from "./components/ResetPasswordForm";
 import Dashboard from "./components/Dashboard";
 import SetQuestionsPage from "./components/SetQuestionsPage";
 import ExaminationViewPage from "./components/ExaminationViewPage";
@@ -18,6 +20,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegistrationForm />} />
+          <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+          <Route path="/reset-password" element={<ResetPasswordForm />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/set-questions/:id" element={<SetQuestionsPage />} />
           <Route path="/examination/:id" element={<ExaminationViewPage />} />

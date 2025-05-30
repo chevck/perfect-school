@@ -4,6 +4,7 @@ import BillingPage from "./BillingPage";
 import SettingsPage from "./SettingsPage";
 import TeachersPage from "./TeachersPage";
 import ExaminationsPage from "./ExaminationsPage";
+import StudentsPage from "./StudentsPage";
 import { Menu } from "lucide-react";
 import { Button } from "./ui/button";
 
@@ -1028,12 +1029,7 @@ const Dashboard = () => {
 
           {activeTab === "students" && (
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                Students
-              </h1>
-              <p className="text-gray-600">
-                Student management content will appear here.
-              </p>
+              <StudentsPage />
             </div>
           )}
 
