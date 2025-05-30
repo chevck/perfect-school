@@ -242,6 +242,28 @@ const StudentExamView = () => {
     );
   }
 
+  // Check if questions array is empty or currentQuestionIndex is out of bounds
+  if (questions.length === 0 || currentQuestionIndex >= questions.length) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
+        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6 text-center">
+          <div className="text-xl font-semibold text-gray-900 mb-4">
+            No questions available
+          </div>
+          <p className="text-gray-600 mb-6">
+            There are no questions available for this examination.
+          </p>
+          <Button
+            onClick={() => navigate("/dashboard")}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Return to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const currentQuestion = questions[currentQuestionIndex];
   const progress = (currentQuestionIndex / questions.length) * 100;
 
