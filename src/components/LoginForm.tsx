@@ -3,10 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  role: z.enum(["teacher", "admin", "parent"], {
+    required_error: "Please select a role",
+  }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -19,14 +30,19 @@ const LoginForm = () => {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
+      role: "teacher",
     },
   });
+
+  const selectedRole = watch("role");
 
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
@@ -38,6 +54,7 @@ const LoginForm = () => {
     try {
       // This is where you would integrate with your authentication service
       console.log("Login attempt with:", data);
+      console.log("User role:", data.role);
 
       // Simulate sending OTP
       setTimeout(() => {
@@ -142,6 +159,34 @@ const LoginForm = () => {
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor="role"
+                className="text-sm font-medium text-gray-700"
+              >
+                I am a
+              </Label>
+              <Select
+                value={selectedRole}
+                onValueChange={(value) =>
+                  setValue("role", value as "teacher" | "admin" | "parent")
+                }
+                disabled={isLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="teacher">Teacher</SelectItem>
+                  <SelectItem value="admin">Administrator</SelectItem>
+                  <SelectItem value="parent">Parent</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.role && (
+                <p className="text-red-600 text-sm">{errors.role.message}</p>
+              )}
+            </div>
+
             <div className="space-y-2">
               <label
                 htmlFor="email"
