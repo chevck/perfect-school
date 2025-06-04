@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
+import { Skeleton } from "./ui/skeleton";
 import {
   Search,
   Plus,
@@ -100,6 +101,7 @@ interface Student {
 const StudentsPage = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -122,157 +124,168 @@ const StudentsPage = () => {
 
   // Load mock data
   useEffect(() => {
-    // In a real app, this would be an API call
-    const mockStudents: Student[] = [
-      {
-        id: "1",
-        firstName: "John",
-        lastName: "Smith",
-        admissionNumber: "STU2023001",
-        class: "Grade 10",
-        section: "A",
-        gender: "Male",
-        dateOfBirth: "2008-05-15",
-        address: "123 School Lane, Springfield",
-        joinDate: "2020-09-01",
-        isActive: true,
-        profileImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-        parents: [
-          {
-            id: "p1",
-            name: "Robert Smith",
-            relationship: "Father",
-            phone: "555-123-4567",
-            email: "robert@example.com",
-            occupation: "Engineer",
-            isEmergencyContact: true,
-          },
-          {
-            id: "p2",
-            name: "Mary Smith",
-            relationship: "Mother",
-            phone: "555-123-4568",
-            email: "mary@example.com",
-            occupation: "Doctor",
-            isEmergencyContact: false,
-          },
-        ],
-        siblings: [
-          {
-            id: "s1",
-            name: "Emma Smith",
-            age: 14,
-            grade: "Grade 8",
-            inSameSchool: true,
-          },
-        ],
-        teacherId: "t1",
-        teacherName: "Ms. Johnson",
-        bloodGroup: "O+",
-        medicalConditions: "Asthma",
-        emergencyContact: "555-123-4567",
-        fees: {
-          status: "paid",
-          lastPaymentDate: "2023-04-15",
-          dueAmount: 0,
-        },
-      },
-      {
-        id: "2",
-        firstName: "Sarah",
-        lastName: "Williams",
-        admissionNumber: "STU2023002",
-        class: "Grade 9",
-        section: "B",
-        gender: "Female",
-        dateOfBirth: "2009-08-22",
-        address: "456 Education Ave, Springfield",
-        joinDate: "2021-09-01",
-        isActive: true,
-        profileImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-        parents: [
-          {
-            id: "p3",
-            name: "James Williams",
-            relationship: "Father",
-            phone: "555-234-5678",
-            email: "james@example.com",
-            occupation: "Accountant",
-            isEmergencyContact: true,
-          },
-        ],
-        siblings: [],
-        teacherId: "t2",
-        teacherName: "Mr. Brown",
-        bloodGroup: "A+",
-        fees: {
-          status: "pending",
-          dueAmount: 500,
-        },
-      },
-      {
-        id: "3",
-        firstName: "Michael",
-        lastName: "Johnson",
-        admissionNumber: "STU2022015",
-        class: "Grade 11",
-        section: "A",
-        gender: "Male",
-        dateOfBirth: "2007-03-10",
-        address: "789 Learning Blvd, Springfield",
-        joinDate: "2019-09-01",
-        isActive: false,
-        profileImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
-        parents: [
-          {
-            id: "p4",
-            name: "David Johnson",
-            relationship: "Father",
-            phone: "555-345-6789",
-            email: "david@example.com",
-            occupation: "Lawyer",
-            isEmergencyContact: false,
-          },
-          {
-            id: "p5",
-            name: "Lisa Johnson",
-            relationship: "Mother",
-            phone: "555-345-6780",
-            email: "lisa@example.com",
-            occupation: "Teacher",
-            isEmergencyContact: true,
-          },
-        ],
-        siblings: [
-          {
-            id: "s2",
-            name: "Daniel Johnson",
-            age: 10,
-            grade: "Grade 4",
-            inSameSchool: true,
-          },
-          {
-            id: "s3",
-            name: "Emily Johnson",
-            age: 16,
-            grade: "Grade 12",
-            inSameSchool: true,
-          },
-        ],
-        teacherId: "t3",
-        teacherName: "Mrs. Davis",
-        bloodGroup: "B-",
-        medicalConditions: "Allergies to nuts",
-        emergencyContact: "555-345-6780",
-        fees: {
-          status: "overdue",
-          lastPaymentDate: "2022-12-10",
-          dueAmount: 1200,
-        },
-      },
-    ];
+    // Simulate loading delay
+    const loadData = async () => {
+      setIsLoading(true);
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    setStudents(mockStudents);
+      // In a real app, this would be an API call
+      const mockStudents: Student[] = [
+        {
+          id: "1",
+          firstName: "John",
+          lastName: "Smith",
+          admissionNumber: "STU2023001",
+          class: "Grade 10",
+          section: "A",
+          gender: "Male",
+          dateOfBirth: "2008-05-15",
+          address: "123 School Lane, Springfield",
+          joinDate: "2020-09-01",
+          isActive: true,
+          profileImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+          parents: [
+            {
+              id: "p1",
+              name: "Robert Smith",
+              relationship: "Father",
+              phone: "555-123-4567",
+              email: "robert@example.com",
+              occupation: "Engineer",
+              isEmergencyContact: true,
+            },
+            {
+              id: "p2",
+              name: "Mary Smith",
+              relationship: "Mother",
+              phone: "555-123-4568",
+              email: "mary@example.com",
+              occupation: "Doctor",
+              isEmergencyContact: false,
+            },
+          ],
+          siblings: [
+            {
+              id: "s1",
+              name: "Emma Smith",
+              age: 14,
+              grade: "Grade 8",
+              inSameSchool: true,
+            },
+          ],
+          teacherId: "t1",
+          teacherName: "Ms. Johnson",
+          bloodGroup: "O+",
+          medicalConditions: "Asthma",
+          emergencyContact: "555-123-4567",
+          fees: {
+            status: "paid",
+            lastPaymentDate: "2023-04-15",
+            dueAmount: 0,
+          },
+        },
+        {
+          id: "2",
+          firstName: "Sarah",
+          lastName: "Williams",
+          admissionNumber: "STU2023002",
+          class: "Grade 9",
+          section: "B",
+          gender: "Female",
+          dateOfBirth: "2009-08-22",
+          address: "456 Education Ave, Springfield",
+          joinDate: "2021-09-01",
+          isActive: true,
+          profileImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+          parents: [
+            {
+              id: "p3",
+              name: "James Williams",
+              relationship: "Father",
+              phone: "555-234-5678",
+              email: "james@example.com",
+              occupation: "Accountant",
+              isEmergencyContact: true,
+            },
+          ],
+          siblings: [],
+          teacherId: "t2",
+          teacherName: "Mr. Brown",
+          bloodGroup: "A+",
+          fees: {
+            status: "pending",
+            dueAmount: 500,
+          },
+        },
+        {
+          id: "3",
+          firstName: "Michael",
+          lastName: "Johnson",
+          admissionNumber: "STU2022015",
+          class: "Grade 11",
+          section: "A",
+          gender: "Male",
+          dateOfBirth: "2007-03-10",
+          address: "789 Learning Blvd, Springfield",
+          joinDate: "2019-09-01",
+          isActive: false,
+          profileImage:
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
+          parents: [
+            {
+              id: "p4",
+              name: "David Johnson",
+              relationship: "Father",
+              phone: "555-345-6789",
+              email: "david@example.com",
+              occupation: "Lawyer",
+              isEmergencyContact: false,
+            },
+            {
+              id: "p5",
+              name: "Lisa Johnson",
+              relationship: "Mother",
+              phone: "555-345-6780",
+              email: "lisa@example.com",
+              occupation: "Teacher",
+              isEmergencyContact: true,
+            },
+          ],
+          siblings: [
+            {
+              id: "s2",
+              name: "Daniel Johnson",
+              age: 10,
+              grade: "Grade 4",
+              inSameSchool: true,
+            },
+            {
+              id: "s3",
+              name: "Emily Johnson",
+              age: 16,
+              grade: "Grade 12",
+              inSameSchool: true,
+            },
+          ],
+          teacherId: "t3",
+          teacherName: "Mrs. Davis",
+          bloodGroup: "B-",
+          medicalConditions: "Allergies to nuts",
+          emergencyContact: "555-345-6780",
+          fees: {
+            status: "overdue",
+            lastPaymentDate: "2022-12-10",
+            dueAmount: 1200,
+          },
+        },
+      ];
+
+      setStudents(mockStudents);
+      setIsLoading(false);
+    };
+
+    loadData();
   }, []);
 
   const filteredStudents = students.filter(
@@ -500,7 +513,37 @@ const StudentsPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredStudents.length === 0 ? (
+              {isLoading ? (
+                // Loading skeleton rows
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-24" />
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Skeleton className="h-8 w-8 rounded" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : filteredStudents.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
                     <div className="flex flex-col items-center justify-center text-gray-500">
