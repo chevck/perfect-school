@@ -283,6 +283,16 @@ const ExaminationsPage = () => {
                       <Button
                         variant="outline"
                         size="sm"
+                        className="text-purple-600 hover:text-purple-800"
+                        onClick={() => {
+                          window.location.href = `/review-examination/${exam.id}`;
+                        }}
+                      >
+                        Review
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="text-gray-600 hover:text-gray-800"
                         onClick={() => {
                           window.location.href = `/examination/${exam.id}`;

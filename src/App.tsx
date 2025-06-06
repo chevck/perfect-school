@@ -8,6 +8,7 @@ import ResetPasswordForm from "./components/ResetPasswordForm";
 import Dashboard from "./components/Dashboard";
 import SetQuestionsPage from "./components/SetQuestionsPage";
 import ExaminationViewPage from "./components/ExaminationViewPage";
+import ExaminationReviewPage from "./components/ExaminationReviewPage";
 import StudentExamLogin from "./components/StudentExamLogin";
 import StudentExamView from "./components/StudentExamView";
 import routes from "tempo-routes";
@@ -25,6 +26,10 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/set-questions/:id" element={<SetQuestionsPage />} />
           <Route path="/examination/:id" element={<ExaminationViewPage />} />
+          <Route
+            path="/review-examination/:id"
+            element={<ExaminationReviewPage />}
+          />
           <Route path="/take-exam/:id" element={<StudentExamLogin />} />
           <Route
             path="/take-exam/:id/questions"
