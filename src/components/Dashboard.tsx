@@ -5,9 +5,20 @@ import SettingsPage from "./SettingsPage";
 import TeachersPage from "./TeachersPage";
 import ExaminationsPage from "./ExaminationsPage";
 import StudentsPage from "./StudentsPage";
-import { Menu } from "lucide-react";
+import { Menu, LogOut, User, School } from "lucide-react";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
+import { useUser } from "@/contexts/UserContext";
+import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type TabType =
   | "dashboard"
@@ -19,9 +30,55 @@ type TabType =
   | "settings";
 
 const Dashboard = () => {
+  const { user, setUser } = useUser();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isTabLoading, setIsTabLoading] = useState(false);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  const handleLogout = () => {
+    setUser(null);
+    navigate("/login");
+  };
+
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case "teacher":
+        return "Teacher";
+      case "admin":
+        return "Administrator";
+      case "parent":
+        return "Parent";
+      default:
+        return role;
+    }
+  };
+
+  const getUserInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleTabClick = async (tab: TabType) => {
     if (tab !== activeTab) {
@@ -38,13 +95,22 @@ const Dashboard = () => {
       {/* Navigation Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">S</span>
             </div>
-            <span className="font-bold text-xl text-gray-900 hidden sm:inline">
-              Perfect School App
-            </span>
+            <div className="hidden sm:block">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-xl text-gray-900">
+                  Perfect School App
+                </span>
+                <div className="h-6 w-px bg-gray-300"></div>
+                <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <School className="h-4 w-4" />
+                  <span className="font-medium">{user.school.name}</span>
+                </div>
+              </div>
+            </div>
             <span className="font-bold text-xl text-gray-900 sm:hidden">
               PSA
             </span>
@@ -79,120 +145,90 @@ const Dashboard = () => {
               </span>
             </div>
 
-            <div className="relative group">
-              <div className="flex items-center gap-2 cursor-pointer">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-600 font-medium text-sm">JD</span>
-                </div>
-                <span className="text-sm font-medium hidden sm:inline">
-                  John Doe
-                </span>
-                <svg
-                  className="w-4 h-4 text-gray-500 hidden sm:block"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 h-auto p-2"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </div>
-
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 invisible group-hover:visible z-50">
-                <div className="p-2">
-                  <div className="text-xs font-medium text-gray-500 px-3 py-1">
-                    ACCOUNTS
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback className="bg-blue-100 text-blue-600 text-sm font-medium">
+                      {getUserInitials(user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="hidden sm:block text-left">
+                    <div className="text-sm font-medium text-gray-900">
+                      {user.name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {getRoleDisplayName(user.role)}
+                    </div>
                   </div>
-
-                  <div className="mt-1 space-y-1">
-                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md bg-blue-50 text-blue-600">
-                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-blue-600 font-medium text-xs">
-                          JD
-                        </span>
+                  <svg
+                    className="w-4 h-4 text-gray-500 hidden sm:block"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel className="pb-2">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarFallback className="bg-blue-100 text-blue-600 font-medium">
+                        {getUserInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {user.name}
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium">John Doe</p>
-                        <p className="text-xs text-gray-500">Administrator</p>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                      <div className="text-xs text-gray-400">
+                        {getRoleDisplayName(user.role)}
                       </div>
-                    </button>
-
-                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100">
-                      <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-green-600 font-medium text-xs">
-                          JS
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">Jane Smith</p>
-                        <p className="text-xs text-gray-500">Teacher</p>
-                      </div>
-                    </button>
-
-                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100">
-                      <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-purple-600 font-medium text-xs">
-                          RJ
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">Robert Johnson</p>
-                        <p className="text-xs text-gray-500">Finance Officer</p>
-                      </div>
-                    </button>
+                    </div>
                   </div>
-
-                  <div className="border-t border-gray-200 mt-2 pt-2">
-                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 text-blue-600">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                        ></path>
-                      </svg>
-                      Add Account
-                    </button>
-
-                    <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 text-gray-700">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                        ></path>
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        ></path>
-                      </svg>
-                      Manage Accounts
-                    </button>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <div className="px-2 py-1.5">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <School className="h-4 w-4" />
+                    <div>
+                      <div className="font-medium">{user.school.name}</div>
+                      {user.school.address && (
+                        <div className="text-xs text-gray-500">
+                          {user.school.address}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/settings")}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-red-600"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
@@ -373,9 +409,15 @@ const Dashboard = () => {
                   <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-lg">S</span>
                   </div>
-                  <span className="font-bold text-lg text-gray-900">
-                    Perfect School App
-                  </span>
+                  <div>
+                    <div className="font-bold text-lg text-gray-900">
+                      Perfect School App
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-gray-600">
+                      <School className="h-3 w-3" />
+                      <span>{user.school.name}</span>
+                    </div>
+                  </div>
                 </div>
                 <Button
                   variant="ghost"

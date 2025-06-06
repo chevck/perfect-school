@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useUser } from "@/contexts/UserContext";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -24,6 +25,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const { setUser } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -78,8 +80,49 @@ const LoginForm = () => {
 
   const verifyOtp = () => {
     setIsLoading(true);
-    // Simulate OTP verification
+    // Simulate OTP verification and set user data
     setTimeout(() => {
+      const selectedRole = watch("role");
+      const email = watch("email");
+
+      // Mock user data based on role
+      const mockUserData = {
+        teacher: {
+          id: "teacher_001",
+          name: "Sarah Johnson",
+          email: email || "sarah.johnson@school.edu",
+          role: "teacher" as const,
+          school: {
+            id: "school_001",
+            name: "Greenwood Elementary School",
+            address: "123 Education Lane, Springfield",
+          },
+        },
+        admin: {
+          id: "admin_001",
+          name: "John Doe",
+          email: email || "john.doe@school.edu",
+          role: "admin" as const,
+          school: {
+            id: "school_001",
+            name: "Greenwood Elementary School",
+            address: "123 Education Lane, Springfield",
+          },
+        },
+        parent: {
+          id: "parent_001",
+          name: "Michael Brown",
+          email: email || "michael.brown@email.com",
+          role: "parent" as const,
+          school: {
+            id: "school_001",
+            name: "Greenwood Elementary School",
+            address: "123 Education Lane, Springfield",
+          },
+        },
+      };
+
+      setUser(mockUserData[selectedRole]);
       setIsLoading(false);
       navigate("/dashboard"); // Redirect to dashboard page after successful verification
     }, 1000);
