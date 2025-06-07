@@ -86,7 +86,7 @@ const Dashboard = () => {
       // Simulate tab loading delay
       await new Promise((resolve) => setTimeout(resolve, 500));
       setActiveTab(tab);
-      // setIsTabLoading(false);
+      setIsTabLoading(false);
     }
   };
 
