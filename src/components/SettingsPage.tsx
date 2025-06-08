@@ -21,6 +21,27 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Trash2, Plus, Star } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+
+interface BankAccount {
+  id: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  routingNumber: string;
+  accountType: string;
+  isPrimary: boolean;
+}
 
 interface SchoolSettings {
   general: {
@@ -39,9 +60,7 @@ interface SchoolSettings {
     currency: string;
     taxRate: number;
     paymentTerms: string;
-    bankName: string;
-    accountNumber: string;
-    accountName: string;
+    bankAccounts: BankAccount[];
     enableOnlinePayments: boolean;
     acceptedPaymentMethods: string[];
   };
@@ -88,9 +107,26 @@ const SettingsPage: React.FC = () => {
       currency: "USD",
       taxRate: 7.5,
       paymentTerms: "Net 30",
-      bankName: "Education First Bank",
-      accountNumber: "1234567890",
-      accountName: "Perfect School Inc.",
+      bankAccounts: [
+        {
+          id: "1",
+          bankName: "Education First Bank",
+          accountNumber: "1234567890",
+          accountName: "Perfect School Inc.",
+          routingNumber: "021000021",
+          accountType: "Checking",
+          isPrimary: true,
+        },
+        {
+          id: "2",
+          bankName: "Learning Credit Union",
+          accountNumber: "9876543210",
+          accountName: "Perfect School Savings",
+          routingNumber: "321174851",
+          accountType: "Savings",
+          isPrimary: false,
+        },
+      ],
       enableOnlinePayments: true,
       acceptedPaymentMethods: ["Credit Card", "Bank Transfer", "Cash"],
     },
@@ -121,6 +157,15 @@ const SettingsPage: React.FC = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isAddingAccount, setIsAddingAccount] = useState(false);
+  const [newAccount, setNewAccount] = useState<Omit<BankAccount, 'id'>>{
+    bankName: '',
+    accountNumber: '',
+    accountName: '',
+    routingNumber: '',
+    accountType: 'Checking',
+    isPrimary: false,
+  });
 
   const handleGeneralChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -140,6 +185,64 @@ const SettingsPage: React.FC = () => {
       billing: {
         ...settings.billing,
         [name]: name === "taxRate" ? parseFloat(value) : value,
+      },
+    });
+  };
+
+  const handleNewAccountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewAccount({
+      ...newAccount,
+      [name]: value,
+    });
+  };
+
+  const handleAddBankAccount = () => {
+    if (newAccount.bankName && newAccount.accountNumber && newAccount.accountName) {
+      const accountToAdd: BankAccount = {
+        ...newAccount,
+        id: Date.now().toString(),
+      };
+      
+      setSettings({
+        ...settings,
+        billing: {
+          ...settings.billing,
+          bankAccounts: [...settings.billing.bankAccounts, accountToAdd],
+        },
+      });
+      
+      setNewAccount({
+        bankName: '',
+        accountNumber: '',
+        accountName: '',
+        routingNumber: '',
+        accountType: 'Checking',
+        isPrimary: false,
+      });
+      setIsAddingAccount(false);
+    }
+  };
+
+  const handleRemoveBankAccount = (accountId: string) => {
+    setSettings({
+      ...settings,
+      billing: {
+        ...settings.billing,
+        bankAccounts: settings.billing.bankAccounts.filter(account => account.id !== accountId),
+      },
+    });
+  };
+
+  const handleSetPrimaryAccount = (accountId: string) => {
+    setSettings({
+      ...settings,
+      billing: {
+        ...settings.billing,
+        bankAccounts: settings.billing.bankAccounts.map(account => ({
+          ...account,
+          isPrimary: account.id === accountId,
+        })),
       },
     });
   };
@@ -446,36 +549,156 @@ const SettingsPage: React.FC = () => {
               </div>
 
               <Separator className="my-4" />
-              <h3 className="text-lg font-medium">Bank Account Information</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium">Bank Account Information</h3>
+                <Dialog open={isAddingAccount} onOpenChange={setIsAddingAccount}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Account
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Add Bank Account</DialogTitle>
+                      <DialogDescription>
+                        Add a new bank account for your school.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="new-bankName">Bank Name</Label>
+                        <Input
+                          id="new-bankName"
+                          name="bankName"
+                          value={newAccount.bankName}
+                          onChange={handleNewAccountChange}
+                          placeholder="Enter bank name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new-accountName">Account Name</Label>
+                        <Input
+                          id="new-accountName"
+                          name="accountName"
+                          value={newAccount.accountName}
+                          onChange={handleNewAccountChange}
+                          placeholder="Enter account holder name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new-accountNumber">Account Number</Label>
+                        <Input
+                          id="new-accountNumber"
+                          name="accountNumber"
+                          value={newAccount.accountNumber}
+                          onChange={handleNewAccountChange}
+                          placeholder="Enter account number"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new-routingNumber">Routing Number</Label>
+                        <Input
+                          id="new-routingNumber"
+                          name="routingNumber"
+                          value={newAccount.routingNumber}
+                          onChange={handleNewAccountChange}
+                          placeholder="Enter routing number"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new-accountType">Account Type</Label>
+                        <Select
+                          value={newAccount.accountType}
+                          onValueChange={(value) => setNewAccount({...newAccount, accountType: value})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select account type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Checking">Checking</SelectItem>
+                            <SelectItem value="Savings">Savings</SelectItem>
+                            <SelectItem value="Business">Business</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsAddingAccount(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleAddBankAccount}>
+                        Add Account
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="bankName">Bank Name</Label>
-                  <Input
-                    id="bankName"
-                    name="bankName"
-                    value={settings.billing.bankName}
-                    onChange={handleBillingChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="accountName">Account Name</Label>
-                  <Input
-                    id="accountName"
-                    name="accountName"
-                    value={settings.billing.accountName}
-                    onChange={handleBillingChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="accountNumber">Account Number</Label>
-                  <Input
-                    id="accountNumber"
-                    name="accountNumber"
-                    value={settings.billing.accountNumber}
-                    onChange={handleBillingChange}
-                  />
-                </div>
+              <div className="space-y-4">
+                {settings.billing.bankAccounts.map((account) => (
+                  <Card key={account.id} className="relative">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium">{account.bankName}</h4>
+                            {account.isPrimary && (
+                              <Badge variant="default" className="text-xs">
+                                <Star className="h-3 w-3 mr-1" />
+                                Primary
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
+                            <div>
+                              <p className="font-medium text-foreground">Account Name</p>
+                              <p>{account.accountName}</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">Account Number</p>
+                              <p>****{account.accountNumber.slice(-4)}</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">Routing Number</p>
+                              <p>{account.routingNumber}</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">Account Type</p>
+                              <p>{account.accountType}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 ml-4">
+                          {!account.isPrimary && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleSetPrimaryAccount(account.id)}
+                            >
+                              Set Primary
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRemoveBankAccount(account.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                
+                {settings.billing.bankAccounts.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No bank accounts added yet.</p>
+                    <p className="text-sm">Click "Add Account" to add your first bank account.</p>
+                  </div>
+                )}
               </div>
 
               <Separator className="my-4" />
