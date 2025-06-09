@@ -158,12 +158,12 @@ const SettingsPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isAddingAccount, setIsAddingAccount] = useState(false);
-  const [newAccount, setNewAccount] = useState<Omit<BankAccount, 'id'>>{
-    bankName: '',
-    accountNumber: '',
-    accountName: '',
-    routingNumber: '',
-    accountType: 'Checking',
+  const [newAccount, setNewAccount] = useState<Omit<BankAccount, "id">>({
+    bankName: "",
+    accountNumber: "",
+    accountName: "",
+    routingNumber: "",
+    accountType: "Checking",
     isPrimary: false,
   });
 
@@ -198,12 +198,16 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleAddBankAccount = () => {
-    if (newAccount.bankName && newAccount.accountNumber && newAccount.accountName) {
+    if (
+      newAccount.bankName &&
+      newAccount.accountNumber &&
+      newAccount.accountName
+    ) {
       const accountToAdd: BankAccount = {
         ...newAccount,
         id: Date.now().toString(),
       };
-      
+
       setSettings({
         ...settings,
         billing: {
@@ -211,13 +215,13 @@ const SettingsPage: React.FC = () => {
           bankAccounts: [...settings.billing.bankAccounts, accountToAdd],
         },
       });
-      
+
       setNewAccount({
-        bankName: '',
-        accountNumber: '',
-        accountName: '',
-        routingNumber: '',
-        accountType: 'Checking',
+        bankName: "",
+        accountNumber: "",
+        accountName: "",
+        routingNumber: "",
+        accountType: "Checking",
         isPrimary: false,
       });
       setIsAddingAccount(false);
@@ -229,7 +233,9 @@ const SettingsPage: React.FC = () => {
       ...settings,
       billing: {
         ...settings.billing,
-        bankAccounts: settings.billing.bankAccounts.filter(account => account.id !== accountId),
+        bankAccounts: settings.billing.bankAccounts.filter(
+          (account) => account.id !== accountId,
+        ),
       },
     });
   };
@@ -239,7 +245,7 @@ const SettingsPage: React.FC = () => {
       ...settings,
       billing: {
         ...settings.billing,
-        bankAccounts: settings.billing.bankAccounts.map(account => ({
+        bankAccounts: settings.billing.bankAccounts.map((account) => ({
           ...account,
           isPrimary: account.id === accountId,
         })),
@@ -550,8 +556,13 @@ const SettingsPage: React.FC = () => {
 
               <Separator className="my-4" />
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Bank Account Information</h3>
-                <Dialog open={isAddingAccount} onOpenChange={setIsAddingAccount}>
+                <h3 className="text-lg font-medium">
+                  Bank Account Information
+                </h3>
+                <Dialog
+                  open={isAddingAccount}
+                  onOpenChange={setIsAddingAccount}
+                >
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm">
                       <Plus className="h-4 w-4 mr-2" />
@@ -587,7 +598,9 @@ const SettingsPage: React.FC = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="new-accountNumber">Account Number</Label>
+                        <Label htmlFor="new-accountNumber">
+                          Account Number
+                        </Label>
                         <Input
                           id="new-accountNumber"
                           name="accountNumber"
@@ -597,7 +610,9 @@ const SettingsPage: React.FC = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="new-routingNumber">Routing Number</Label>
+                        <Label htmlFor="new-routingNumber">
+                          Routing Number
+                        </Label>
                         <Input
                           id="new-routingNumber"
                           name="routingNumber"
@@ -610,7 +625,9 @@ const SettingsPage: React.FC = () => {
                         <Label htmlFor="new-accountType">Account Type</Label>
                         <Select
                           value={newAccount.accountType}
-                          onValueChange={(value) => setNewAccount({...newAccount, accountType: value})}
+                          onValueChange={(value) =>
+                            setNewAccount({ ...newAccount, accountType: value })
+                          }
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select account type" />
@@ -624,7 +641,10 @@ const SettingsPage: React.FC = () => {
                       </div>
                     </div>
                     <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsAddingAccount(false)}>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsAddingAccount(false)}
+                      >
                         Cancel
                       </Button>
                       <Button onClick={handleAddBankAccount}>
@@ -652,19 +672,27 @@ const SettingsPage: React.FC = () => {
                           </div>
                           <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
                             <div>
-                              <p className="font-medium text-foreground">Account Name</p>
+                              <p className="font-medium text-foreground">
+                                Account Name
+                              </p>
                               <p>{account.accountName}</p>
                             </div>
                             <div>
-                              <p className="font-medium text-foreground">Account Number</p>
+                              <p className="font-medium text-foreground">
+                                Account Number
+                              </p>
                               <p>****{account.accountNumber.slice(-4)}</p>
                             </div>
                             <div>
-                              <p className="font-medium text-foreground">Routing Number</p>
+                              <p className="font-medium text-foreground">
+                                Routing Number
+                              </p>
                               <p>{account.routingNumber}</p>
                             </div>
                             <div>
-                              <p className="font-medium text-foreground">Account Type</p>
+                              <p className="font-medium text-foreground">
+                                Account Type
+                              </p>
                               <p>{account.accountType}</p>
                             </div>
                           </div>
@@ -674,7 +702,9 @@ const SettingsPage: React.FC = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleSetPrimaryAccount(account.id)}
+                              onClick={() =>
+                                handleSetPrimaryAccount(account.id)
+                              }
                             >
                               Set Primary
                             </Button>
@@ -692,11 +722,13 @@ const SettingsPage: React.FC = () => {
                     </CardContent>
                   </Card>
                 ))}
-                
+
                 {settings.billing.bankAccounts.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     <p>No bank accounts added yet.</p>
-                    <p className="text-sm">Click "Add Account" to add your first bank account.</p>
+                    <p className="text-sm">
+                      Click "Add Account" to add your first bank account.
+                    </p>
                   </div>
                 )}
               </div>
