@@ -564,29 +564,236 @@ const ExaminationViewPage = () => {
         </TabsContent>
 
         <TabsContent value="results" className="mt-6">
-          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center">
-            <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <svg
-                className="w-8 h-8 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                ></path>
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Results Not Available
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Results will be available after students complete the examination.
-            </p>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            {!examination.students ||
+            examination.students.filter((s) => s.status === "completed")
+              .length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <svg
+                    className="w-8 h-8 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    ></path>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Results Not Available
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  Results will be available after students complete the
+                  examination.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <div className="p-4 bg-gray-50 border-b border-gray-100">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-medium text-gray-900">
+                      Examination Results
+                    </h3>
+                    <div className="text-sm text-gray-500">
+                      {
+                        examination.students.filter(
+                          (s) => s.status === "completed",
+                        ).length
+                      }{" "}
+                      of {examination.students.length} completed
+                    </div>
+                  </div>
+                </div>
+
+                {/* Results Summary */}
+                <div className="p-6 border-b border-gray-100">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {
+                          examination.students.filter(
+                            (s) => s.status === "completed",
+                          ).length
+                        }
+                      </div>
+                      <div className="text-sm text-gray-500">Completed</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">
+                        {
+                          examination.students.filter(
+                            (s) =>
+                              s.status === "completed" &&
+                              s.score &&
+                              s.score >= calculateTotalMarks() * 0.6,
+                          ).length
+                        }
+                      </div>
+                      <div className="text-sm text-gray-500">Passed (≥60%)</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">
+                        {
+                          examination.students.filter(
+                            (s) =>
+                              s.status === "completed" &&
+                              s.score &&
+                              s.score < calculateTotalMarks() * 0.6,
+                          ).length
+                        }
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Failed (less than 60%)
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {examination.students.filter(
+                          (s) => s.status === "completed" && s.score,
+                        ).length > 0
+                          ? Math.round(
+                              examination.students
+                                .filter(
+                                  (s) => s.status === "completed" && s.score,
+                                )
+                                .reduce((sum, s) => sum + (s.score || 0), 0) /
+                                examination.students.filter(
+                                  (s) => s.status === "completed" && s.score,
+                                ).length,
+                            )
+                          : 0}
+                        %
+                      </div>
+                      <div className="text-sm text-gray-500">Average Score</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Individual Results */}
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <tr>
+                        <th className="px-6 py-3 text-left">Student</th>
+                        <th className="px-6 py-3 text-left">Score</th>
+                        <th className="px-6 py-3 text-left">Percentage</th>
+                        <th className="px-6 py-3 text-left">Grade</th>
+                        <th className="px-6 py-3 text-left">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {examination.students
+                        .filter((student) => student.status === "completed")
+                        .sort((a, b) => (b.score || 0) - (a.score || 0))
+                        .map((student, index) => {
+                          const percentage = student.score
+                            ? Math.round(
+                                (student.score / calculateTotalMarks()) * 100,
+                              )
+                            : 0;
+                          const getGrade = (percent: number) => {
+                            if (percent >= 90)
+                              return {
+                                grade: "A+",
+                                color: "text-green-700 bg-green-100",
+                              };
+                            if (percent >= 80)
+                              return {
+                                grade: "A",
+                                color: "text-green-600 bg-green-50",
+                              };
+                            if (percent >= 70)
+                              return {
+                                grade: "B",
+                                color: "text-blue-600 bg-blue-50",
+                              };
+                            if (percent >= 60)
+                              return {
+                                grade: "C",
+                                color: "text-yellow-600 bg-yellow-50",
+                              };
+                            if (percent >= 50)
+                              return {
+                                grade: "D",
+                                color: "text-orange-600 bg-orange-50",
+                              };
+                            return {
+                              grade: "F",
+                              color: "text-red-600 bg-red-50",
+                            };
+                          };
+                          const gradeInfo = getGrade(percentage);
+
+                          return (
+                            <tr
+                              key={student.id}
+                              className={`hover:bg-gray-50 ${index === 0 ? "bg-yellow-50" : ""}`}
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  {index === 0 && (
+                                    <div className="mr-2 text-yellow-500">
+                                      <svg
+                                        className="w-5 h-5"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                          clipRule="evenodd"
+                                        />
+                                      </svg>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div className="text-sm font-medium text-gray-900">
+                                      {student.name}
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                      {student.email}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {student.score || 0} / {calculateTotalMarks()}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {percentage}%
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span
+                                  className={`px-2 py-1 text-xs font-medium rounded-full ${gradeInfo.color}`}
+                                >
+                                  {gradeInfo.grade}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span
+                                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    percentage >= 60
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-red-100 text-red-800"
+                                  }`}
+                                >
+                                  {percentage >= 60 ? "Passed" : "Failed"}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>
