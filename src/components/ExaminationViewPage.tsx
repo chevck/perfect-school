@@ -415,9 +415,10 @@ const ExaminationViewPage = () => {
                           {index + 1}
                         </div>
                         <div>
-                          <p className="text-gray-900 font-medium">
-                            {question.text}
-                          </p>
+                          <div
+                            className="text-gray-900 font-medium prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: question.text }}
+                          />
                           <p className="text-sm text-gray-500 mt-1">
                             {question.marks} marks
                           </p>

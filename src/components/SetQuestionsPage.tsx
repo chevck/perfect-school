@@ -4,7 +4,17 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Badge } from "./ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import {
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Clock,
+  MessageSquare,
+} from "lucide-react";
 
 interface Question {
   id: string;
@@ -12,6 +22,10 @@ interface Question {
   options: string[];
   correctOption: number;
   marks: number;
+  status?: "pending" | "approved" | "rejected" | "needs_revision";
+  reviewNotes?: string;
+  createdBy?: string;
+  createdAt?: string;
 }
 
 interface ExaminationDetails {
@@ -43,11 +57,19 @@ const SetQuestionsPage = () => {
   const [questions, setQuestions] = useState<Question[]>(() => {
     // Load questions from localStorage if available
     const savedQuestions = localStorage.getItem(`exam-${"1"}-questions`);
-    return savedQuestions ? JSON.parse(savedQuestions) : [];
+    const parsedQuestions = savedQuestions ? JSON.parse(savedQuestions) : [];
+    // Add review status to existing questions if not present
+    return parsedQuestions.map((q: Question) => ({
+      ...q,
+      status: q.status || "pending",
+      createdBy: q.createdBy || "Current User",
+      createdAt: q.createdAt || new Date().toISOString(),
+    }));
   });
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [questionText, setQuestionText] = useState("");
 
   const {
     register,
@@ -57,7 +79,6 @@ const SetQuestionsPage = () => {
     watch,
     formState: { errors },
   } = useForm<{
-    questionText: string;
     option1: string;
     option2: string;
     option3: string;
@@ -66,7 +87,6 @@ const SetQuestionsPage = () => {
     marks: number;
   }>({
     defaultValues: {
-      questionText: "",
       option1: "",
       option2: "",
       option3: "",
@@ -79,15 +99,29 @@ const SetQuestionsPage = () => {
   const watchedValues = watch();
 
   const onSubmit = (data: any) => {
+    if (!questionText.trim()) {
+      alert("Question text is required");
+      return;
+    }
+
     const newQuestion: Question = {
       id:
         isEditing && editIndex !== null
           ? questions[editIndex].id
           : Math.random().toString(36).substring(2, 9),
-      text: data.questionText,
+      text: questionText,
       options: [data.option1, data.option2, data.option3, data.option4],
       correctOption: parseInt(data.correctOption),
       marks: data.marks,
+      status:
+        isEditing && editIndex !== null
+          ? questions[editIndex].status
+          : "pending",
+      createdBy: "Current User",
+      createdAt:
+        isEditing && editIndex !== null
+          ? questions[editIndex].createdAt
+          : new Date().toISOString(),
     };
 
     if (isEditing && editIndex !== null) {
@@ -118,11 +152,12 @@ const SetQuestionsPage = () => {
     );
 
     reset();
+    setQuestionText("");
   };
 
   const handleEditQuestion = (index: number) => {
     const question = questions[index];
-    setValue("questionText", question.text);
+    setQuestionText(question.text);
     setValue("option1", question.options[0]);
     setValue("option2", question.options[1]);
     setValue("option3", question.options[2]);
@@ -149,12 +184,64 @@ const SetQuestionsPage = () => {
       setEditIndex(null);
       setCurrentQuestion(null);
       reset();
+      setQuestionText("");
     }
   };
 
   const calculateTotalMarks = () => {
     return questions.reduce((total, question) => total + question.marks, 0);
   };
+
+  const getStatusColor = (status: Question["status"]) => {
+    switch (status) {
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "needs_revision":
+        return "bg-yellow-100 text-yellow-800";
+      case "pending":
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusIcon = (status: Question["status"]) => {
+    switch (status) {
+      case "approved":
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case "rejected":
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      case "needs_revision":
+        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+      case "pending":
+      default:
+        return <Clock className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ script: "sub" }, { script: "super" }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["formula"],
+      ["clean"],
+    ],
+  };
+
+  const quillFormats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "script",
+    "list",
+    "bullet",
+    "formula",
+  ];
 
   return (
     <div className="space-y-6">
@@ -236,17 +323,19 @@ const SetQuestionsPage = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="questionText">Question Text</Label>
-            <textarea
-              id="questionText"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[100px]"
-              {...register("questionText", {
-                required: "Question text is required",
-              })}
-            />
-            {errors.questionText && (
-              <p className="text-sm text-red-500">
-                {errors.questionText.message}
-              </p>
+            <div className="border border-gray-300 rounded-md">
+              <ReactQuill
+                theme="snow"
+                value={questionText}
+                onChange={setQuestionText}
+                modules={quillModules}
+                formats={quillFormats}
+                placeholder="Enter your question here... Use the toolbar for formatting, including superscripts for expressions like 5²"
+                style={{ minHeight: "120px" }}
+              />
+            </div>
+            {!questionText.trim() && (
+              <p className="text-sm text-red-500">Question text is required</p>
             )}
           </div>
 
@@ -361,6 +450,7 @@ const SetQuestionsPage = () => {
                   setIsEditing(false);
                   setEditIndex(null);
                   reset();
+                  setQuestionText("");
                 }}
               >
                 Cancel Edit
@@ -396,18 +486,43 @@ const SetQuestionsPage = () => {
                   className="p-4 border border-gray-200 rounded-lg"
                 >
                   <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
                         <span className="font-semibold text-gray-900">
                           Question {index + 1}
                         </span>
                         <span className="text-sm text-gray-500">
                           ({question.marks} marks)
                         </span>
+                        <div className="flex items-center gap-1">
+                          {getStatusIcon(question.status)}
+                          <Badge className={getStatusColor(question.status)}>
+                            {question.status?.replace("_", " ").toUpperCase() ||
+                              "PENDING"}
+                          </Badge>
+                        </div>
                       </div>
-                      <p className="mt-2 text-gray-800">{question.text}</p>
+                      <div
+                        className="mt-2 text-gray-800 prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: question.text }}
+                      />
+                      {question.reviewNotes && (
+                        <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                          <div className="flex items-start gap-2">
+                            <MessageSquare className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <p className="text-sm font-medium text-yellow-800">
+                                Review Notes:
+                              </p>
+                              <p className="text-sm text-yellow-700">
+                                {question.reviewNotes}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 ml-4">
                       <Button
                         variant="outline"
                         size="sm"

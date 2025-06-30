@@ -586,9 +586,10 @@ const ExaminationReviewPage = () => {
                           {index + 1}
                         </div>
                         <div className="flex-1">
-                          <p className="text-gray-900 font-medium mb-2">
-                            {question.text}
-                          </p>
+                          <div
+                            className="text-gray-900 font-medium mb-2 prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: question.text }}
+                          />
                           <div className="flex items-center gap-4 text-sm text-gray-500">
                             <span>{question.marks} marks</span>
                             <span>By: {question.createdBy}</span>
