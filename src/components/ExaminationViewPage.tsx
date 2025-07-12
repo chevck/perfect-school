@@ -5,7 +5,16 @@ import { Badge } from "./ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Progress } from "./ui/progress";
 import { Input } from "./ui/input";
-import { Copy, Mail, Share2 } from "lucide-react";
+import { Textarea } from "./ui/textarea";
+import {
+  Copy,
+  Mail,
+  Share2,
+  CheckCircle,
+  XCircle,
+  Clock,
+  MessageSquare,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +30,10 @@ interface Question {
   options: string[];
   correctOption: number;
   marks: number;
+  status?: "pending" | "approved" | "rejected" | "needs_revision";
+  reviewNotes?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
 }
 
 interface Student {
@@ -52,6 +65,11 @@ const ExaminationViewPage = () => {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [studentEmail, setStudentEmail] = useState("");
   const [shareLink, setShareLink] = useState("");
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null,
+  );
+  const [reviewNotes, setReviewNotes] = useState("");
 
   useEffect(() => {
     // In a real app, fetch from API
@@ -110,7 +128,16 @@ const ExaminationViewPage = () => {
 
         // Try to load questions
         const savedQuestions = localStorage.getItem(`exam-${id}-questions`);
-        setQuestions(savedQuestions ? JSON.parse(savedQuestions) : []);
+        const questionsData = savedQuestions ? JSON.parse(savedQuestions) : [];
+
+        // Add default review status if not present
+        const questionsWithStatus = questionsData.map((q: Question) => ({
+          ...q,
+          status: q.status || "pending",
+          reviewNotes: q.reviewNotes || "",
+        }));
+
+        setQuestions(questionsWithStatus);
       } catch (error) {
         console.error("Error loading examination data:", error);
       } finally {
@@ -192,6 +219,85 @@ const ExaminationViewPage = () => {
       title: "Link Copied",
       description: "Exam link copied to clipboard",
     });
+  };
+
+  const getQuestionStatusColor = (status: Question["status"]) => {
+    switch (status) {
+      case "approved":
+        return "bg-green-50 border-green-200";
+      case "rejected":
+        return "bg-red-50 border-red-200";
+      case "needs_revision":
+        return "bg-yellow-50 border-yellow-200";
+      case "pending":
+      default:
+        return "bg-gray-50 border-gray-200";
+    }
+  };
+
+  const getStatusBadgeColor = (status: Question["status"]) => {
+    switch (status) {
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "needs_revision":
+        return "bg-yellow-100 text-yellow-800";
+      case "pending":
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusIcon = (status: Question["status"]) => {
+    switch (status) {
+      case "approved":
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case "rejected":
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      case "needs_revision":
+        return <Clock className="h-4 w-4 text-yellow-600" />;
+      case "pending":
+      default:
+        return <Clock className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  const handleReviewQuestion = (question: Question) => {
+    setSelectedQuestion(question);
+    setReviewNotes(question.reviewNotes || "");
+    setReviewDialogOpen(true);
+  };
+
+  const submitReview = (status: "approved" | "rejected" | "needs_revision") => {
+    if (!selectedQuestion) return;
+
+    const updatedQuestions = questions.map((q) =>
+      q.id === selectedQuestion.id
+        ? {
+            ...q,
+            status,
+            reviewNotes,
+            reviewedBy: "Current User", // In a real app, this would be the logged-in user
+            reviewedAt: new Date().toISOString(),
+          }
+        : q,
+    );
+
+    setQuestions(updatedQuestions);
+    localStorage.setItem(
+      `exam-${id}-questions`,
+      JSON.stringify(updatedQuestions),
+    );
+
+    toast({
+      title: "Review Submitted",
+      description: `Question ${status === "approved" ? "approved" : status === "rejected" ? "rejected" : "marked for revision"}`,
+    });
+
+    setReviewDialogOpen(false);
+    setSelectedQuestion(null);
+    setReviewNotes("");
   };
 
   if (loading) {
@@ -408,13 +514,28 @@ const ExaminationViewPage = () => {
             ) : (
               <div className="divide-y divide-gray-200">
                 {questions.map((question, index) => (
-                  <div key={question.id} className="p-6">
+                  <div
+                    key={question.id}
+                    className={`p-6 ${getQuestionStatusColor(question.status)}`}
+                  >
                     <div className="flex justify-between items-start">
                       <div className="flex items-start gap-3">
                         <div className="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center font-medium text-sm">
                           {index + 1}
                         </div>
-                        <div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            {getStatusIcon(question.status)}
+                            <Badge
+                              className={`${getStatusBadgeColor(question.status)} text-xs`}
+                            >
+                              {question.status?.charAt(0).toUpperCase() +
+                                question.status?.slice(1) || "Pending"}
+                            </Badge>
+                            {question.reviewNotes && (
+                              <MessageSquare className="h-4 w-4 text-blue-600" />
+                            )}
+                          </div>
                           <div
                             className="text-gray-900 font-medium prose prose-sm max-w-none"
                             dangerouslySetInnerHTML={{ __html: question.text }}
@@ -422,7 +543,36 @@ const ExaminationViewPage = () => {
                           <p className="text-sm text-gray-500 mt-1">
                             {question.marks} marks
                           </p>
+                          {question.reviewNotes && (
+                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                              <p className="text-sm font-medium text-blue-800 mb-1">
+                                Review Comments:
+                              </p>
+                              <p className="text-sm text-blue-700">
+                                {question.reviewNotes}
+                              </p>
+                              {question.reviewedBy && question.reviewedAt && (
+                                <p className="text-xs text-blue-600 mt-2">
+                                  Reviewed by {question.reviewedBy} on{" "}
+                                  {new Date(
+                                    question.reviewedAt,
+                                  ).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleReviewQuestion(question)}
+                          className="flex items-center gap-1"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          Review
+                        </Button>
                       </div>
                     </div>
 
@@ -798,6 +948,66 @@ const ExaminationViewPage = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Review Dialog */}
+      <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Review Question</DialogTitle>
+          </DialogHeader>
+          {selectedQuestion && (
+            <div className="space-y-4 py-4">
+              <div className="p-4 bg-gray-50 rounded-md">
+                <div
+                  className="text-gray-900 font-medium prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: selectedQuestion.text }}
+                />
+                <p className="text-sm text-gray-500 mt-2">
+                  {selectedQuestion.marks} marks
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Review Comments
+                </label>
+                <Textarea
+                  placeholder="Add your review comments here..."
+                  value={reviewNotes}
+                  onChange={(e) => setReviewNotes(e.target.value)}
+                  rows={4}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={() => submitReview("approved")}
+                  className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Approve
+                </Button>
+                <Button
+                  onClick={() => submitReview("needs_revision")}
+                  variant="outline"
+                  className="border-yellow-300 text-yellow-700 hover:bg-yellow-50 flex items-center gap-2"
+                >
+                  <Clock className="h-4 w-4" />
+                  Needs Revision
+                </Button>
+                <Button
+                  onClick={() => submitReview("rejected")}
+                  variant="outline"
+                  className="border-red-300 text-red-700 hover:bg-red-50 flex items-center gap-2"
+                >
+                  <XCircle className="h-4 w-4" />
+                  Reject
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
